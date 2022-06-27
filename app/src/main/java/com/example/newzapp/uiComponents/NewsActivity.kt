@@ -29,7 +29,7 @@ class NewsActivity: AppCompatActivity() {
 
         // Setting up the view model with the help of repository and factory provider
         val myRepository = NewsRepository(ArticleDatabase(this))
-        val vmProvider: NewsVMProvider = NewsVMProvider(myRepository)
+        val vmProvider: NewsVMProvider = NewsVMProvider(application, myRepository)
         myViewModel = ViewModelProvider(this,vmProvider)[NewsViewModel::class.java]
 
 

@@ -15,6 +15,7 @@ import com.example.newzapp.uiComponents.NewsActivity
 import com.example.newzapp.uiComponents.NewsViewModel
 import com.example.newzapp.utils.Resource
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 
 class BreakingNewsFragment: Fragment(R.layout.fragment_breaking_news) {
     private lateinit var viewModel: NewsViewModel
@@ -52,7 +53,7 @@ class BreakingNewsFragment: Fragment(R.layout.fragment_breaking_news) {
                 is Resource.ErrorCL -> {
                     hideProgressBar()
                     it.currMessage?.let { errorMessage ->
-                        Log.e("BreakingNewsFragment", errorMessage)
+                        Snackbar.make(view,errorMessage,Snackbar.LENGTH_LONG).show()
                     }
                 }
                 else -> {

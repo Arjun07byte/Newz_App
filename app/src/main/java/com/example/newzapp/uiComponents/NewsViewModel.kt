@@ -1,8 +1,13 @@
 package com.example.newzapp.uiComponents
 
+import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.newzapp.NewsApplication
 import com.example.newzapp.models.Article
 import com.example.newzapp.models.NewsResponse
 import com.example.newzapp.repository.NewsRepository
@@ -11,8 +16,9 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class NewsViewModel(
+    private val app: Application,
     private val newsRepository: NewsRepository
-): ViewModel() {
+): AndroidViewModel(app) {
     val breakingNewsObject: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
     private val breakingNewsPage = 1
 
@@ -21,9 +27,7 @@ class NewsViewModel(
     }
 
     private fun getBreakingNews() = viewModelScope.launch {
-        breakingNewsObject.postValue(Resource.LoadingCL())
-        val currResponse = newsRepository.getBreakingNews(breakingNewsPage)
-        breakingNewsObject.postValue(handleResponses(currResponse))
+        safeBreakingNewsCall()
     }
 
     private fun handleResponses(response: Response<NewsResponse>): Resource<NewsResponse>{
@@ -44,5 +48,33 @@ class NewsViewModel(
 
     fun deleteArticle(article: Article) = viewModelScope.launch {
         newsRepository.deleteArticle(article)
+    }
+
+    private suspend fun safeBreakingNewsCall() {
+        breakingNewsObject.postValue(Resource.LoadingCL())
+        try{
+            if(isInternetAvailable()){
+                val currResponse = newsRepository.getBreakingNews(breakingNewsPage)
+                breakingNewsObject.postValue(handleResponses(currResponse))
+            } else{
+                breakingNewsObject.postValue(Resource.ErrorCL("No Internet"))
+            }
+        } catch (thr: Throwable){
+            breakingNewsObject.postValue(Resource.ErrorCL("Error"))
+        }
+    }
+
+    private fun isInternetAvailable(): Boolean{
+        val connectivityManager = getApplication<NewsApplication>().getSystemService(
+            Context.CONNECTIVITY_SERVICE
+        ) as ConnectivityManager
+
+        return connectivityManager.run {
+            getNetworkCapabilities(activeNetwork)?.run {
+                hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                        || hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                        || hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+            }
+        } ?: false
     }
 }
