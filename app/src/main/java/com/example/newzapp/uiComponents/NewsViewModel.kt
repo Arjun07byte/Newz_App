@@ -3,6 +3,7 @@ package com.example.newzapp.uiComponents
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.newzapp.models.Article
 import com.example.newzapp.models.NewsResponse
 import com.example.newzapp.repository.NewsRepository
 import com.example.newzapp.utils.Resource
@@ -33,5 +34,15 @@ class NewsViewModel(
         }
 
         return Resource.ErrorCL(response.message())
+    }
+
+    fun insertArticle(article: Article) = viewModelScope.launch {
+        newsRepository.updateAndInsert(article)
+    }
+
+    fun getAllNews() = newsRepository.getAllSaved()
+
+    fun deleteArticle(article: Article) = viewModelScope.launch {
+        newsRepository.deleteArticle(article)
     }
 }

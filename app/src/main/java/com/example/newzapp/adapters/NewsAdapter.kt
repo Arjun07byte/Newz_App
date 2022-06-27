@@ -35,7 +35,7 @@ class NewsAdapter: RecyclerView.Adapter<NewsAdapter.ArticleViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
         return ArticleViewHolder(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.article_rv_view,
+                R.layout.breaking_news_rv_view,
                 parent,
                 false
             )
@@ -57,7 +57,7 @@ class NewsAdapter: RecyclerView.Adapter<NewsAdapter.ArticleViewHolder>() {
         Glide.with(holder.itemView).load(currArticle.urlToImage).into(holder.eachArticleIv)
         holder.eachItemTitleTv.text = currArticle.title
         holder.eachItemDescTv.text = currArticle.description
-        holder.eachItemPubTv.text = currArticle.publishedAt
+        holder.eachItemPubTv.text = currArticle.publishedAt.subSequence(0,10)
     }
 
     private var onItemClickListener: ((Article) -> Unit) ?= null
